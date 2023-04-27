@@ -1,0 +1,9 @@
+---
+kind: DB
+spec:
+  sql:
+    - name: batch_import.sql
+      tool: Client
+      error: Exit                #Exit   Continue
+      repeat: Change                #Change   Always
+      schema: logquery

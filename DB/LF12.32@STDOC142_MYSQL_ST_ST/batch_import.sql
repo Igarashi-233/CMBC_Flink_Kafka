@@ -1,0 +1,2 @@
+--ALTER TABLE logquery.data_import_config CHANGE e_id e_original_id varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL NULL;
+--ALTER TABLE logquery.data_import_config CHANGE e_is_login e_distinct_id varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL NULL;
