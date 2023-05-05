@@ -95,3 +95,5 @@ com.sensorsdata.analytics
     - 配置格式为 <kafka_server_port>.<kafka_topic>=<PostProcessor_name>
     - key 部分需要将所有标点换成 "."
 - 完成配置后，在主逻辑算子中，就会对应数据源信息读取对应的 PostProcessor 进行登录数据处理
+
+![example](example/example.jpg)
