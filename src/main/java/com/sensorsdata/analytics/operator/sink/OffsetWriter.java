@@ -1,11 +1,26 @@
 package com.sensorsdata.analytics.operator.sink;
 
 import com.sensorsdata.analytics.utils.DBTools;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.common.state.ListState;
+import org.apache.flink.api.common.state.ListStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeHint;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.runtime.state.FunctionInitializationContext;
+import org.apache.flink.runtime.state.FunctionSnapshotContext;
+import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.TopicPartition;
 
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class OffsetWriter implements SinkFunction<ConsumerRecord<byte[], byte[]>>, CheckpointedFunction {
 
     private final Tuple3<String, String, String> kafkaTuple;
@@ -82,7 +97,7 @@ public class OffsetWriter implements SinkFunction<ConsumerRecord<byte[], byte[]>
             String group = kafkaTuple.f1;
             TopicPartition topicPartition =
                     new TopicPartition(value.topic(),
-                            value.offset());
+                            (int) value.offset());
             Tuple3<String, String, TopicPartition> combineTuple = Tuple3.of(server, group, topicPartition);
             long offset = value.offset();
 

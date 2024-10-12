@@ -146,6 +146,12 @@
             <version>1.21</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version> <!-- 根据需要调整版本号 -->
+        </dependency>
+
     </dependencies>
 
     <build>

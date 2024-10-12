@@ -3,6 +3,14 @@ package com.sensorsdata.analytics.operator.sink;
 import com.sensorsdata.analytics.bean.mysql.CounterBean;
 import com.sensorsdata.analytics.constants.PropertiesConstants;
 import com.sensorsdata.analytics.utils.DBTools;
+import lombok.extern.log4j.Log4j2;
+import org.apache.flink.api.java.tuple.Tuple5;
+import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.metrics.Counter;
+import org.apache.flink.runtime.state.FunctionInitializationContext;
+import org.apache.flink.runtime.state.FunctionSnapshotContext;
+import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -10,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Log4j2
 public class RecordCounterWriter extends RichSinkFunction<Map<Tuple5<String, String, String, String, String>, Counter>>
         implements CheckpointedFunction {
 

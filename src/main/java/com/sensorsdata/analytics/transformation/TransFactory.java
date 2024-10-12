@@ -307,7 +307,7 @@ public class TransFactory implements Serializable {
                     sinkCounterInfo.setField("7-SINK", 4);
                     if (incCounter(sinkCounterInfo)) {
                         ctx.output(counterListOutput, counterMap);
-                    }\
+                    }
                     ((ObjectNode) eventNode).put("project", project);
                     collector.collect(eventNode);
                 }
