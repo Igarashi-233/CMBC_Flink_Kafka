@@ -1,6 +1,5 @@
 package com.sensorsdata.analytics;
 
-import com.cmb.bdp1.utils.CaseConf;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Maps;
 import com.sensorsdata.analytics.bean.mysql.SourceSinkBean;
@@ -14,6 +13,8 @@ import com.sensorsdata.analytics.transformation.TransFactory;
 import com.sensorsdata.analytics.transformation.broadcast.PropertiesMap;
 import com.sensorsdata.analytics.utils.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -43,8 +44,8 @@ public class FlinkMain {
 
     public static void main(String[] args) throws Exception {
         FlinkMain flinkDaemon = new FlinkMain();
-        CaseConf caseConf = new CaseConf(args[0]);
-        flinkDaemon.propertiesFileName = "/".concat(caseConf.get("properties_file"));
+        Configuration caseConf = new PropertiesConfiguration(args[0]);
+        flinkDaemon.propertiesFileName = "/".concat(caseConf.getString("properties_file"));
         flinkDaemon.startTimeStamp = caseConf.getLong("start_timestamp", 0L);
 
         log.info("start flink main with properties file. [path = {}] ", flinkDaemon.propertiesFileName);
@@ -59,7 +60,7 @@ public class FlinkMain {
         //配置flink的重启策略
         StreamExecutionEnvironment env = ExecutionEnvUtil.prepare(parameters);
         //配置flink的checkpoint相关参数
-        boolean failOnCPErrors = Boolean.parseBoolean(caseConf.get("fail_on_cp_errors", Boolean.TRUE.toString()));
+        boolean failOnCPErrors = Boolean.parseBoolean(caseConf.getString("fail_on_cp_errors", Boolean.TRUE.toString()));
         CheckPointUtil.setCheckpointConfig(env, parameters, failOnCPErrors);
 
         env.getConfig().setGlobalJobParameters(parameters);
@@ -133,25 +134,25 @@ public class FlinkMain {
         //处理数据的主逻辑
         SingleOutputStreamOperator<JsonNode> flatMapTransDataStream =
                 TransFactory.getInstance().processDataStream(
-                        originalKafkaDataStream,
-                        metaData,
-                        ruleMap,
-                        invalidDataSideOutput,
-                        counterListOutput,
-                        parameters)
+                                originalKafkaDataStream,
+                                metaData,
+                                ruleMap,
+                                invalidDataSideOutput,
+                                counterListOutput,
+                                parameters)
 //                        .setParallelism(parameters.getInt(PropertiesConstants.MAIN_PROCESS_PARALLELISM))
                         .name("transformation")
                         .uid("transformation-step-4");
 
 
-        String kafkaProducerRetries = caseConf.get("kafka_producer_retries", "0");
-        String kafkaProducerAck = caseConf.get("kafka_producer_ack", "-1");
+        String kafkaProducerRetries = caseConf.getString("kafka_producer_retries", "0");
+        String kafkaProducerAck = caseConf.getString("kafka_producer_ack", "-1");
         flatMapTransDataStream.addSink(
-                KafkaGenerateFactory.toKafkaDataStream(parameters,
-                        EventDataSchema.class,
-                        parameters.get(PropertiesConstants.PRODUCER_TOPIC),
-                        kafkaProducerRetries,
-                        kafkaProducerAck))
+                        KafkaGenerateFactory.toKafkaDataStream(parameters,
+                                EventDataSchema.class,
+                                parameters.get(PropertiesConstants.PRODUCER_TOPIC),
+                                kafkaProducerRetries,
+                                kafkaProducerAck))
 //                .setParallelism(parameters.getInt(PropertiesConstants.STREAM_SINK_PARALLELISM))
                 .name("sink-sa-event-sensor").uid("sink-kafka-step-5-sensor");
 
@@ -170,7 +171,7 @@ public class FlinkMain {
                 .setParallelism(1)
                 .name("sink-counter");
 
-        String appName = caseConf.get("framework.streaming.appName", "FlinkApp");
+        String appName = caseConf.getString("framework.streaming.appName", "FlinkApp");
         env.execute(appName);
     }
 }
